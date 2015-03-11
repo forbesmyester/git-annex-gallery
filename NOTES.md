@@ -15,15 +15,16 @@ When normal jpeg / png / gif files are encountered it will run the following com
 ## Possible components.
 
  * Identify albums.
- * Identify images within an album.
- * Generate a hash for an image, which will be used to not continually re-create thumbnails that already exist.
+ * Identify images / fileswithin an album (think about non-image files perhaps).
+ * Generate a hash for an image / file, which will be used to not continually re-create thumbnails that already exist.
  * Generate missing thumbnails for an image.
- * Extract metadata from an image including reading image Markdown.
+ * Extract metadata from an image / file including reading image Markdown.
  * Extract metadata for an album including reading album Markdown.
  * Generate a data file which includes information about the albums.
- * Generate a data file which describes all pictures within an album.
+ * Generate a data file which describes all images / files within an album.
  * Generate some HTML / JS / Clojurescript which can read the data files and allow listing / selection of an albums and pictures with possible next / previous controls.
  * Figure out what git hooks can be leveraged to make this suitable for non technical users and how to script creation of hooks.
  * I think settings should be able to be stored in git, how to script setup and allow modification / reading?
  * Can we make a node-webkit app to wrap the entire app?
  * Can the code be embedded within an Android app?
+ * Enhancement: Git Annex can be aware of a file without downloading it. Is it possible for the app to understand this / manage creation / download / pushing / pulling these files around repositories?
