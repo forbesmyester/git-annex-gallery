@@ -1,4 +1,8 @@
-# Gallery Generator built to learn Clojure
+# git-annex-gallery: A Gallery Generator built to learn Clojure
+
+## Installation
+
+FIXME: Write stuff here!
 
 ## Where To Put Your Images
 
@@ -38,39 +42,13 @@ below.
     <datadir>/2011/04/28/Tokyo Trip/Picture3425.edited.jpg
 
 I may be able to use git hooks to perform this trickery... so if you edit Picture3425.jpg and save it, git-annex should commit it and perhaps in a git pre-commit hook I can rename and recover the original... that may or may not be possible...
-# git-annex-gallery
-
-FIXME: description
-
-## Installation
-
-Download from http://example.com/FIXME.
 
 ## Usage
 
-FIXME: explanation
+To generate the gallery run the following:
 
-    $ java -jar git-annex-gallery-0.1.0-standalone.jar [args]
+    $ java -jar git-annex-gallery-0.1.0-standalone.jar
 
-## Options
+To install the git / git-annex hooks you will need to run like this:
 
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2015 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+    $ java -jar git-annex-gallery-0.1.0-standalone.jar annex-monitor
