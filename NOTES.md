@@ -18,7 +18,8 @@ When normal jpeg / png / gif files are encountered it will run the following com
  * Identify images / fileswithin an album (think about non-image files perhaps).
  * Generate a hash for an image / file, which will be used to not continually re-create thumbnails that already exist.
  * Generate missing thumbnails for an image.
- * Extract metadata from an image / file including reading image Markdown.
+ * Extract metadata from an image using exiv2 [done]
+ * Extract metadata from an images markdown file
  * Extract metadata for an album including reading album Markdown.
  * Generate a data file which includes information about the albums.
  * Generate a data file which describes all images / files within an album.
