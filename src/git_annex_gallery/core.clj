@@ -14,6 +14,14 @@
         (str/trim (sed "s/ .*//" {:in (sha1sum path)}))
       ))))
 
+(defn is-leaf-directory [d]
+  (not (some #(.isDirectory %) (rest (file-seq d)))))
+
+(defn identify-albums [root-path]
+  (filter
+    #(and (.isDirectory %) (is-leaf-directory %))
+    (file-seq root-path)))
+
 (defn tagify [field-seperator keyvalue-seperator aliases str]
   (let [split-to-fields #(str/split % field-seperator)
         split-key-and-value #(str/split % keyvalue-seperator 2)
