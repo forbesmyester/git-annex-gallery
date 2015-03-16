@@ -12,13 +12,16 @@
   Parameters
    * Function proc [element] A function to run on an elements of data
    * Function check [result-of-proc] The check that will be performe don the output of proc
-   * Function post [result-of-proc element] If result-of-proc passed `check` this, the result of this function will be returned.
+
+  Returns a map in the form {:result the_result_of_proc :element the_element_that_passed_check :index the_index_of_colon_element}
   "
-  ([proc check post data n]
+  ([proc check data n]
    (if (< n (count data))
      (let [r (proc (nth data n))]
-       (if (check r) (post r (nth data n)) (drop-while-return-checked proc check post data (inc n))))))
-  ([proc check post data] (drop-while-return-checked proc check post data 0)))
+       (if (check r)
+         {:result r :element (nth data n) :index n }
+         (drop-while-return-checked proc check data (inc n))))))
+  ([proc check data] (drop-while-return-checked proc check data 0)))
 
 (defn get-checksum [path]
   (let [dir (-> path file/as-file .getParent file/as-file .getPath)
@@ -26,13 +29,13 @@
         get-checksum-config [{ :sh ["git" "annex" "lookupkey" :dir dir] :post str/trim }
                              { :sh ["git" "ls-files" "-s" :dir dir] :post #(second(str/split % #" +")) }
                              { :sh ["sha1sum" path] :post #(first(str/split % #" +")) }]
-        ]
-    (drop-while-return-checked
-        #(apply shell/sh (:sh %))
-        #(= 0 (:exit %))
-        #((:post %2) (:out %1))
-        get-checksum-config
-    )))
+        result (drop-while-return-checked
+                 #(apply shell/sh (:sh %))
+                 #(= 0 (:exit %))
+                 get-checksum-config)
+        post (:post (:element result))
+        out (:out (:result result))]
+    (post out)))
 
 (defn is-leaf-directory [d]
   (not (some #(.isDirectory %) (rest (file-seq d)))))

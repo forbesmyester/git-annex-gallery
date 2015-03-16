@@ -11,9 +11,8 @@
       (do
         (def log (atom []))
         (let [proc (fn [n] (swap! log conj n) (str "s" n))
-              check #(= "s3" %)
-              post #(str "result: " %1 " " %2)]
-          (drop-while-return-checked proc check post [1 2 3 4 5 6 7 8]) => "result: s3 3"
+              check #(= "s3" %)]
+          (drop-while-return-checked proc check [1 2 3 4 5 6 7 8]) => { :result "s3" :element 3 :index 2 }
           @log => [1 2 3]
           )))
 
