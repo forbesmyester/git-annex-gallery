@@ -1,9 +1,25 @@
 (ns git-annex-gallery.core
   (:require [clojure.java.shell :as shell]
             [clojure.java.io :as file]
+            [clojure.set :as clj-set :refer [difference]]
             [me.raynes.conch :refer [with-programs] :as sh]
             [clojure.string :as str])
   (:gen-class))
+
+(defn get-possible-md [fn]
+  (if (re-find #"\.md$" fn)
+    []
+    (loop [myfn fn
+           result []]
+      (let [next-fn (str/replace myfn #"\.[^\.]*$" "")]
+        (if (= (.indexOf myfn ".") -1)
+          result
+          (recur next-fn (conj result (str next-fn ".md"))))))))
+
+(defn filter-files [files]
+  (let [filter-out (set (flatten (map get-possible-md files)))]
+    (difference (set files) filter-out)
+    ))
 
 (defn drop-while-return-checked
   "

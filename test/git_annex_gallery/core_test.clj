@@ -7,6 +7,15 @@
             [git-annex-gallery.core :refer :all])
   )
 
+(facts "can list possible markdown documents for a file"
+      (fact (get-possible-md "a.png") => ["a.md"])
+      (fact (get-possible-md "a.tar.gz") => ["a.tar.md" "a.md"]))
+
+(fact "can filter a file list, which will exclude \".md\" descriptions"
+      (let [files ["a.png" "a.md" "b.md" "c.png" "d.tar.gz" "d.md"]
+            expected ["a.png" "b.md" "c.png" "d.tar.gz"]]
+            (sort (filter-files files)) => expected))
+
 (fact "can lazily relise vectors and return a pass"
       (do
         (def log (atom []))
