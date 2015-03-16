@@ -1,18 +1,38 @@
 (ns git-annex-gallery.core
-  (:require [me.raynes.conch :refer [with-programs] :as sh]
+  (:require [clojure.java.shell :as shell]
             [clojure.java.io :as file]
+            [me.raynes.conch :refer [with-programs] :as sh]
             [clojure.string :as str])
   (:gen-class))
 
+(defn drop-while-return-checked
+  "
+  Runs proc on items in data and returns a passing item, without evaluating anything else.
+
+  Parameters
+   * Function proc [element] A function to run on an elements of data
+   * Function check [result-of-proc] The check that will be performe don the output of proc
+   * Function post [result-of-proc element] If result-of-proc passed `check` this, the result of this function will be returned.
+  "
+  ([proc check post data n]
+   (if (< n (count data))
+     (let [r (proc (nth data n))]
+       (if (check r) (post r (nth data n)) (drop-while-return-checked proc check post data (inc n))))))
+  ([proc check post data] (drop-while-return-checked proc check post data 0)))
+
 (defn get-checksum [path]
-  (with-programs [sha1sum sed git]
-    (let [dir (-> path file/as-file .getParent file/as-file .getPath)
-          git-annex-dir (str dir "/" (str/trim (git "-C" dir "rev-parse" "--show-cdup")) ".git/annex")
-          ]
-      (if (.exists (file/as-file git-annex-dir))
-        (git "annex" "lookupkey" path)
-        (str/trim (sed "s/ .*//" {:in (sha1sum path)}))
-      ))))
+  (let [dir (-> path file/as-file .getParent file/as-file .getPath)
+        filename (-> path file/as-file .getName)
+        get-checksum-config [{ :sh ["git" "annex" "lookupkey" :dir dir] :post str/trim }
+                             { :sh ["git" "ls-files" "-s" :dir dir] :post #(second(str/split % #" +")) }
+                             { :sh ["sha1sum" path] :post #(first(str/split % #" +")) }]
+        ]
+    (drop-while-return-checked
+        #(apply shell/sh (:sh %))
+        #(= 0 (:exit %))
+        #((:post %2) (:out %1))
+        get-checksum-config
+    )))
 
 (defn is-leaf-directory [d]
   (not (some #(.isDirectory %) (rest (file-seq d)))))
