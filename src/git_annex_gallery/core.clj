@@ -6,20 +6,45 @@
             [clojure.string :as str])
   (:gen-class))
 
-(defn get-possible-md [fn]
-  (if (re-find #"\.md$" fn)
-    []
-    (loop [myfn fn
-           result []]
-      (let [next-fn (str/replace myfn #"\.[^\.]*$" "")]
-        (if (= (.indexOf myfn ".") -1)
+(defn loose-end [coll] (reverse (rest (reverse coll))))
+
+(defn get-possible-md-prelude [filename]
+    (let [components (str/split filename #"\.")]
+      (loop [my-components components
+             result []]
+        (if (= 0 (count my-components))
           result
-          (recur next-fn (conj result (str next-fn ".md"))))))))
+          (recur (loose-end my-components) (conj result my-components))
+          )
+        )))
+
+(defn get-possible-md [filename]
+  (if (re-find #"\.md$" filename)
+    []
+    (let [filter-edited #(not (= "edited" %))
+          ]
+      (->> (get-possible-md-prelude filename)
+           (map #(filter filter-edited %) )
+           (map #(str/join "." %) )
+           (map #(str % ".md") )
+           set
+           )
+      )
+    ))
+
+(defn list-edited-source [files]
+  (map #(str/replace % #"\.edited" "" )
+       (filter #(re-find #"\.edited\." %) files)))
 
 (defn filter-files [files]
-  (let [filter-out (set (flatten (map get-possible-md files)))]
-    (difference (set files) filter-out)
-    ))
+  (let [filter-out (->> files
+                        (map get-possible-md)
+                        (map vec)
+                        flatten
+                        vec
+                        set
+                        )]
+    (difference (difference (set files) filter-out) (list-edited-source files))))
 
 (defn drop-while-return-checked
   "

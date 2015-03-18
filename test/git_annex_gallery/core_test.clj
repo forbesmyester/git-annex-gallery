@@ -8,12 +8,18 @@
   )
 
 (facts "can list possible markdown documents for a file"
-      (fact (get-possible-md "a.png") => ["a.md"])
-      (fact (get-possible-md "a.tar.gz") => ["a.tar.md" "a.md"]))
+      (fact (get-possible-md "a.png") => #{"a.md" "a.png.md"})
+      (fact (get-possible-md "a.edited.png") => #{"a.md" "a.png.md"})
+      (fact (get-possible-md "a.tar.gz") => #{"a.tar.md" "a.md" "a.tar.gz.md"})
+      (fact (get-possible-md "a.edited.tar.gz") => #{"a.tar.md" "a.md" "a.tar.gz.md"})
+      )
 
-(fact "can filter a file list, which will exclude \".md\" descriptions"
-      (let [files ["a.png" "a.md" "b.md" "c.png" "d.tar.gz" "d.md"]
-            expected ["a.png" "b.md" "c.png" "d.tar.gz"]]
+(fact "can list source for editeds which should be ignored"
+      (list-edited-source ["a.png" "b.png" "b.edited.png"]) => ["b.png"])
+
+(fact "can filter a file list, which will exclude \".md\" descriptions and only show edited"
+      (let [files ["a.png" "a.md" "b.md" "c.png" "d.tar.gz" "d.md" "e.png" "e.edited.png"]
+            expected ["a.png" "b.md" "c.png" "d.tar.gz" "e.edited.png"]]
             (sort (filter-files files)) => expected))
 
 (fact "can lazily relise vectors and return a pass"
