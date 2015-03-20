@@ -42,6 +42,17 @@
       (sort (map #(.getPath %) (identify-albums (file/as-file "./resources/albums")))) =>
       (sort ["./resources/albums/a/b/c/d/e" "./resources/albums/birthday" "./resources/albums/ski_trip_2014/slopes" "./resources/albums/ski_trip_2014/chalet"]))
 
+(fact "can list images"
+      (sort (identify-files (file/as-file "./resources/albums/ski_trip_2014/slopes")) =>
+            [
+             "resources/albums/ski_trip_2014/slopes/iDark-Sunset-and-Red-Sun-Rays_Winter__11868-150x150.jpg"
+             "resources/albums/ski_trip_2014/slopes/iSnowy-Trees_Winter-in-the-Park__94185-150x150.jpg"
+             "resources/albums/ski_trip_2014/slopes/iWooden-benches-under-the-snow__52247-150x150.jpg"
+             ]))
+
+
+
+
 (fact "Can extract data from a exiv2 like data structure"
       (tagify #"\n" #":" {"how are" :howare} "hi: there\nhow are: you") =>
       {:hi "there" :howare "you"})
