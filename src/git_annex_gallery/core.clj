@@ -18,6 +18,11 @@
           )
         )))
 
+(defn remove-cache [cache-dir]
+  (if (.exists (file/as-file cache-dir))
+      (= 0 (:exit (shell/sh "rm" "-rf" cache-dir)))
+      true))
+
 (defn get-possible-md [filename]
   (if (re-find #"\.md$" filename)
     []
