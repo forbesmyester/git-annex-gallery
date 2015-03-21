@@ -82,9 +82,19 @@
   (not (some #(.isDirectory %) (rest (file-seq d)))))
 
 (defn identify-albums [root-path]
-  (filter
+  (map #(.getPath %) (filter
     #(and (.isDirectory %) (is-leaf-directory %))
-    (file-seq root-path)))
+    (file-seq root-path))))
+
+(defn identify-files [album-path]
+  (let [is-file #(.isFile %)
+        is-not-hidden #(not (= \. (first (.getName %))))
+        file-filter (every-pred is-file is-not-hidden)]
+    (filter-files
+      (map #(.getPath %)
+           (filter is-not-hidden  (.listFiles album-path))
+           ))
+    ))
 
 (defn tagify [field-seperator keyvalue-seperator aliases str]
   (let [split-to-fields #(str/split % field-seperator)
