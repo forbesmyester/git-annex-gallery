@@ -42,9 +42,21 @@
       (sort (map #(.getPath %) (identify-albums (file/as-file "./resources/albums")))) =>
       (sort ["./resources/albums/a/b/c/d/e" "./resources/albums/birthday" "./resources/albums/ski_trip_2014/slopes" "./resources/albums/ski_trip_2014/chalet"]))
 
+(fact "mega-mapper can pull out and process"
+      (mega-mapper
+        {
+         ["a" "b"] (fn [ks vs] { "AB" (str (apply str ks) "-" (apply str vs)) })
+         ["c"] (fn [ks vs] {"X" 9} )
+         }
+        { "a" 1 "b" 2 "c" 3 }
+        ) => { "X" 9 "a" 1 "b" 2 "c" 3 "AB" "ab-12" })
+
 (fact "Can extract data from a exiv2 like data structure"
-      (tagify #"\n" #":" {"how are" :howare} "hi: there\nhow are: you") =>
-      {:hi "there" :howare "you"})
+      (tagify
+        #"\n"
+        #":"
+        { ["how are"] (fn [ks vs] {:howare (first vs)}) }
+        "hi: there\nhow are: you") => {"hi" "there" "how are" "you" :howare "you"})
 
 (fact "Can extract metadata from an image"
       (extract-metadata "./resources/test/images/IMG_20150314_111531.jpg")

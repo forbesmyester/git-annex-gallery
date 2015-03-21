@@ -86,28 +86,45 @@
     #(and (.isDirectory %) (is-leaf-directory %))
     (file-seq root-path)))
 
-(defn tagify [field-seperator keyvalue-seperator aliases str]
-  (let [split-to-fields #(str/split % field-seperator)
-        split-key-and-value #(str/split % keyvalue-seperator 2)
-        trimmer #(map str/trim %)
-        get-key (fn [aliases str]
+(defn keyify [aliases]
+  (let [get-key (fn [aliases str]
+                  (print aliases str)
                   (if (aliases str)
                     (keyword (aliases str))
                     (keyword str)))
         hashify (fn [pair]
-                  [(get-key aliases (first pair)) (second pair)])
+                  [(get-key aliases (first pair)) (second pair)])]
+    (comp get-key hashify)))
+
+(defn mega-mapper [aliases the-map]
+  (if (= (count aliases) 0 ) the-map
+    (let [exe (fn [[ks fun]]
+                (fun ks (map the-map ks))
+                )]
+      (apply conj the-map (map exe aliases))
+      )))
+
+(defn tagify [field-seperator keyvalue-seperator aliases str]
+  (let [split-to-fields #(str/split % field-seperator)
+        split-key-and-value #(str/split % keyvalue-seperator 2)
+        trimmer #(map str/trim %)
+        combiner #(into {} (map vector (map first %) (map second %)))
         ]
-  (->> str
+  (mega-mapper aliases
+    (->> str
       split-to-fields
       (map split-key-and-value)
       (map trimmer)
-      (map hashify)
-      (into {})
-      )))
+      (combiner)
+      ))))
 
 (defn extract-metadata [path]
   (with-programs [exiv2]
-    (tagify #"\n" #":" {"Image timestamp" :timestamp} (exiv2 path))))
+    (tagify
+      #"\n"
+      #":"
+      {["Image timestamp"] (fn [ks vs] {:timestamp (first vs)})}
+      (exiv2 path))))
 
 (defn -main
   "I don't do a whole lot ... yet."
