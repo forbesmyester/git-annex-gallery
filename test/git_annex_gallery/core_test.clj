@@ -1,8 +1,8 @@
 (ns git-annex-gallery.core-test
   (:require [clojure.test :refer :all]
             [clojure.java.io :as file]
+            [clojure.java.shell :as shell]
             [midje.sweet :refer :all]
-            [me.raynes.conch :refer [with-programs] :as sh]
             [clojure.string :as str]
             [git-annex-gallery.core :refer :all])
   )
@@ -57,3 +57,10 @@
 (fact "Can extract metadata from an image"
       (extract-metadata "./resources/test/images/IMG_20150314_111531.jpg")
       => (contains {:timestamp "2015:03:14 11:15:32"}))
+
+(facts "Can remove directories"
+      (fact "get to consistent state" (remove-cache ".thumbs") => true)
+      (fact "should return true when no dir exists" (remove-cache ".thumbs") => true)
+      (fact "create a thumb directory to test actual deletion" (:exit (shell/sh "mkdir" "-p" ".thumbs/some/sub/directories")) => 0)
+      (fact "should return true when dir exists" (remove-cache ".thumbs") => true)
+      )
