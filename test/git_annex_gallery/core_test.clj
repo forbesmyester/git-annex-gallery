@@ -1,8 +1,8 @@
 (ns git-annex-gallery.core-test
   (:require [clojure.test :refer :all]
             [clojure.java.io :as file]
+            [clojure.java.shell :as shell]
             [midje.sweet :refer :all]
-            [me.raynes.conch :refer [with-programs] :as sh]
             [clojure.string :as str]
             [git-annex-gallery.core :refer :all])
   )
@@ -39,8 +39,16 @@
          (is-leaf-directory (file/as-file "./resources/albums/ski_trip_2014/slopes")) => true))
 
 (fact "can identify albums"
-      (sort (map #(.getPath %) (identify-albums (file/as-file "./resources/albums")))) =>
-      (sort ["./resources/albums/a/b/c/d/e" "./resources/albums/birthday" "./resources/albums/ski_trip_2014/slopes" "./resources/albums/ski_trip_2014/chalet"]))
+      (identify-albums (file/as-file "./resources/albums")) =>
+      (just ["./resources/albums/a/b/c/d/e" "./resources/albums/birthday" "./resources/albums/ski_trip_2014/slopes" "./resources/albums/ski_trip_2014/chalet"]))
+
+(fact "can list images"
+      (identify-files (file/as-file "./resources/albums/ski_trip_2014/slopes")) =>
+            (just [
+             "./resources/albums/ski_trip_2014/slopes/iDark-Sunset-and-Red-Sun-Rays_Winter__11868-150x150.jpg"
+             "./resources/albums/ski_trip_2014/slopes/iSnowy-Trees_Winter-in-the-Park__94185-150x150.jpg"
+             "./resources/albums/ski_trip_2014/slopes/iWooden-benches-under-the-snow__52247-150x150.jpg"
+             ]))
 
 (fact "mega-mapper can pull out and process"
       (mega-mapper
@@ -61,3 +69,10 @@
 (fact "Can extract metadata from an image"
       (extract-metadata "./resources/test/images/IMG_20150314_111531.jpg")
       => (contains {:timestamp "2015:03:14 11:15:32"}))
+
+(facts "Can remove directories"
+      (fact "get to consistent state" (remove-cache ".thumbs") => true)
+      (fact "should return true when no dir exists" (remove-cache ".thumbs") => true)
+      (fact "create a thumb directory to test actual deletion" (:exit (shell/sh "mkdir" "-p" ".thumbs/some/sub/directories")) => 0)
+      (fact "should return true when dir exists" (remove-cache ".thumbs") => true)
+      )

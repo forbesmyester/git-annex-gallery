@@ -18,6 +18,11 @@
           )
         )))
 
+(defn remove-cache [cache-dir]
+  (if (.exists (file/as-file cache-dir))
+      (= 0 (:exit (shell/sh "rm" "-rf" cache-dir)))
+      true))
+
 (defn get-possible-md [filename]
   (if (re-find #"\.md$" filename)
     []
@@ -82,9 +87,19 @@
   (not (some #(.isDirectory %) (rest (file-seq d)))))
 
 (defn identify-albums [root-path]
-  (filter
+  (map #(.getPath %) (filter
     #(and (.isDirectory %) (is-leaf-directory %))
-    (file-seq root-path)))
+    (file-seq root-path))))
+
+(defn identify-files [album-path]
+  (let [is-file #(.isFile %)
+        is-not-hidden #(not (= \. (first (.getName %))))
+        file-filter (every-pred is-file is-not-hidden)]
+    (filter-files
+      (map #(.getPath %)
+           (filter is-not-hidden  (.listFiles album-path))
+           ))
+    ))
 
 (defn keyify [aliases]
   (let [get-key (fn [aliases str]
