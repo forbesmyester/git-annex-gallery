@@ -1,6 +1,6 @@
 (ns git-annex-gallery.core
   (:require [clojure.java.shell :as shell]
-            [clojure.java.io :as file]
+            [clojure.java.io :as io]
             [clojure.set :as clj-set :refer [difference]]
             [me.raynes.conch :refer [with-programs] :as sh]
             [clojure.string :as str])
@@ -138,8 +138,40 @@
     (tagify
       #"\n"
       #":"
-      {["Image timestamp"] (fn [ks vs] {:timestamp (first vs)})}
+      {
+       ["Image timestamp"] (fn [ks vs] {:timestamp (first vs)})
+       ["Image size"] (fn [ks vs] (let [[w h] (str/split (first vs) #"x")]
+                                    {:width (Integer. (str/trim w))
+                                     :height (Integer. (str/trim h))}))
+       }
       (exiv2 path))))
+
+(defn get-thumbnail [width-height convert-to-format destination-directory source-file]
+  (let [dest-file (io/file destination-directory (str width-height ".png"))
+        dest-filename (.getPath dest-file)]
+    (if (.exists dest-file)
+      [dest-filename 0]
+      (do (create-dir destination-directory)
+          (if (= 0 (:exit (shell/sh "convert" "-format" "png" "-thumbnail" width-height source-file dest-filename)))
+            [dest-filename 1]
+            nil)))))
+
+(defn create-dir [path]
+  (= 0 (:exit (shell/sh "mkdir" "-p" path))))
+
+(defn get-thumbnails [resolutions convert-to-format destination-directory source-file]
+  (let [checksum (get-checksum source-file)
+        thumb-dir (.getPath (io/file destination-directory checksum))]
+    (map
+      (fn [[width height]]
+        (first (get-thumbnail
+                 (str width "x" height)
+                 convert-to-format
+                 thumb-dir
+                 source-file
+                 )))
+      resolutions)))
+
 
 (defn -main
   "I don't do a whole lot ... yet."

@@ -19,11 +19,12 @@ When normal jpeg / png / gif files are encountered it will run the following com
  * Identify albums. [done]
  * Identify images / fileswithin an album (think about non-image files perhaps). [done]
  * Can purge all cache [done]
- * Generate missing thumbnails for an image.
+ * Generate missing thumbnails for an image. [done]
+ * Process and generate data for a file
+ * Process and generate data for a album
+ * Process and generate data for all albums
  * Extract metadata from an images markdown file
  * Extract metadata for an album including reading album Markdown.
- * Generate a data file which includes information about the albums.
- * Generate a data file which describes all images / files within an album.
  * Generate some HTML / JS / Clojurescript which can read the data files and allow listing / selection of an albums and pictures with possible next / previous controls.
  * Figure out what git hooks can be leveraged to make this suitable for non technical users and how to script creation of hooks.
  * I think settings should be able to be stored in git, how to script setup and allow modification / reading?

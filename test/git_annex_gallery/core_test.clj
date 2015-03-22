@@ -68,7 +68,9 @@
 
 (fact "Can extract metadata from an image"
       (extract-metadata "./resources/test/images/IMG_20150314_111531.jpg")
-      => (contains {:timestamp "2015:03:14 11:15:32"}))
+      => (contains {:timestamp "2015:03:14 11:15:32"
+                    :width 2448
+                    :height 3264}))
 
 (facts "Can remove directories"
       (fact "get to consistent state" (remove-cache ".thumbs") => true)
@@ -76,3 +78,19 @@
       (fact "create a thumb directory to test actual deletion" (:exit (shell/sh "mkdir" "-p" ".thumbs/some/sub/directories")) => 0)
       (fact "should return true when dir exists" (remove-cache ".thumbs") => true)
       )
+
+(facts "can generate a thumbnail but will also not recreate when already existing"
+      (do
+      (remove-cache ".thumbs")
+      (fact (get-thumbnail "160x120" "png" ".thumbs"  "./resources/test/images/IMG_20150314_111531.jpg") => [".thumbs/160x120.png" 1])
+      (fact (get-thumbnail "160x120" "png" ".thumbs"  "./resources/test/images/IMG_20150314_111531.jpg") => [".thumbs/160x120.png" 0])
+      ))
+
+(fact "can generate thumbnails"
+      (do
+        (remove-cache ".thumbs")
+        (get-thumbnails [[320 240] [640 480]] "png" ".thumbs" "./resources/test/images/IMG_20150314_111531.jpg") =>
+        [".thumbs/dc903a138487161e512d3b494fae29c619cc2666/320x240.png"
+         ".thumbs/dc903a138487161e512d3b494fae29c619cc2666/640x480.png"]))
+
+
