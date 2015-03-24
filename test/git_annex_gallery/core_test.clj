@@ -92,4 +92,20 @@
         [".thumbs/dc903a138487161e512d3b494fae29c619cc2666/320x240.png"
          ".thumbs/dc903a138487161e512d3b494fae29c619cc2666/640x480.png"]))
 
+(fact "can process an album"
+      (fact
+        (process-album "./resources/albums/ski_trip/2014/slopes") =>
+        (just [{:file "./resources/albums/ski_trip_2014/slopes/iWooden-benches-under-the-snow__52247-150x150.jpg"
+                :thumbs [{:file ".thumbs/ddd/320x240.png" :resolution [320 240]} {:file ".thumbs/ddd/640x480.png" :resolution [320 240]}]
+                :checksum "ddd"
+                :timestamp "2015:03:14 11:15:32"}
+               {:file "./resources/albums/ski_trip_2014/slopes/iDark-Sunset-and-Red-Sun-Rays_Winter__11868-150x150.jpg"
+                :thumbs [{:file ".thumbs/ddd/320x240.png" :resolution [320 240]} {:file ".thumbs/ddd/640x480.png" :resolution [320 240]}]
+                :checksum "ddd"
+                :timestamp "2015:03:14 11:15:32"}
+               {:file "./resources/albums/ski_trip_2014/slopes/iSnowy-Trees_Winter-in-the-Park__94185-150x150.jpg"
+                :thumbs [{:file ".thumbs/ddd/320x240.png" :resolution [320 240]} {:file ".thumbs/ddd/640x480.png" :resolution [320 240]}]
+                :checksum "ddd"
+                :timestamp "2015:03:14 11:15:32"}])))
+
 
