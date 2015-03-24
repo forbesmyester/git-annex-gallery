@@ -1,8 +1,8 @@
 (ns git-annex-gallery.core
   (:require [clojure.java.shell :as shell]
+            [clojure.java.io :as file]
             [clojure.java.io :as io]
             [clojure.set :as clj-set :refer [difference]]
-            [me.raynes.conch :refer [with-programs] :as sh]
             [clojure.string :as str])
   (:gen-class))
 
@@ -134,17 +134,21 @@
       ))))
 
 (defn extract-metadata [path]
-  (with-programs [exiv2]
-    (tagify
-      #"\n"
-      #":"
-      {
-       ["Image timestamp"] (fn [ks vs] {:timestamp (first vs)})
-       ["Image size"] (fn [ks vs] (let [[w h] (str/split (first vs) #"x")]
-                                    {:width (Integer. (str/trim w))
-                                     :height (Integer. (str/trim h))}))
-       }
-      (exiv2 path))))
+  (let [cmd-output (shell/sh "exiv2" path)]
+    (if (= 0 (:exit cmd-output))
+      (tagify
+        #"\n"
+        #":"
+        {
+         ["Image timestamp"] (fn [ks vs] {:timestamp (first vs)})
+         ["Image size"] (fn [ks vs] (let [[w h] (str/split (first vs) #"x")]
+                                      {:resolution [(Integer. (str/trim w)) (Integer. (str/trim h))]}))
+         }
+        (:out cmd-output))
+      (throw (Exception. (str "exiv2 did not return with exit code 0 from path '" path "'"))))))
+
+(defn create-dir [path]
+  (= 0 (:exit (shell/sh "mkdir" "-p" path))))
 
 (defn get-thumbnail [width-height convert-to-format destination-directory source-file]
   (let [dest-file (io/file destination-directory (str width-height ".png"))
@@ -155,9 +159,6 @@
           (if (= 0 (:exit (shell/sh "convert" "-format" "png" "-thumbnail" width-height source-file dest-filename)))
             [dest-filename 1]
             nil)))))
-
-(defn create-dir [path]
-  (= 0 (:exit (shell/sh "mkdir" "-p" path))))
 
 (defn get-thumbnails [resolutions convert-to-format destination-directory source-file]
   (let [checksum (get-checksum source-file)

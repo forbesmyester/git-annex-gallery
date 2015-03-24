@@ -69,8 +69,7 @@
 (fact "Can extract metadata from an image"
       (extract-metadata "./resources/test/images/IMG_20150314_111531.jpg")
       => (contains {:timestamp "2015:03:14 11:15:32"
-                    :width 2448
-                    :height 3264}))
+                    :resolution [2448 3264]}))
 
 (facts "Can remove directories"
       (fact "get to consistent state" (remove-cache ".thumbs") => true)
@@ -86,7 +85,7 @@
       (fact (get-thumbnail "160x120" "png" ".thumbs"  "./resources/test/images/IMG_20150314_111531.jpg") => [".thumbs/160x120.png" 0])
       ))
 
-(fact "can generate thumbnails"
+(fact "can generate a thumbnail"
       (do
         (remove-cache ".thumbs")
         (get-thumbnails [[320 240] [640 480]] "png" ".thumbs" "./resources/test/images/IMG_20150314_111531.jpg") =>
