@@ -40,7 +40,7 @@
 
 (fact "can identify albums"
       (identify-albums (file/as-file "./resources/albums")) =>
-      (just ["./resources/albums/a/b/c/d/e" "./resources/albums/birthday" "./resources/albums/ski_trip_2014/slopes" "./resources/albums/ski_trip_2014/chalet"]))
+      (just ["./resources/albums/a/b/c/d/e" "./resources/albums/birthday" "./resources/albums/ski_trip_2014/slopes" "./resources/albums/ski_trip_2014/chalet"] :in-any-order))
 
 (fact "can list images"
       (identify-files (file/as-file "./resources/albums/ski_trip_2014/slopes")) =>
@@ -94,18 +94,18 @@
 
 (fact "can process an album"
       (fact
-        (process-album "./resources/albums/ski_trip/2014/slopes") =>
+        (process-album [[320 240] [640 480]]  "png" ".thumbs" "./resources/albums/ski_trip/2014/slopes") =>
         (just [{:file "./resources/albums/ski_trip_2014/slopes/iWooden-benches-under-the-snow__52247-150x150.jpg"
-                :thumbs [{:file ".thumbs/ddd/320x240.png" :resolution [320 240]} {:file ".thumbs/ddd/640x480.png" :resolution [320 240]}]
-                :checksum "ddd"
+                :thumbs [{:file ".thumbs/f38a3a8938976078035111f3b908de5f0a452010/320x240.png" :resolution [320 240]} {:file ".thumbs/f38a3a8938976078035111f3b908de5f0a452010/640x480.png" :resolution [640 480]}]
+                :checksum "f38a3a8938976078035111f3b908de5f0a452010"
                 :timestamp "2015:03:14 11:15:32"}
                {:file "./resources/albums/ski_trip_2014/slopes/iDark-Sunset-and-Red-Sun-Rays_Winter__11868-150x150.jpg"
-                :thumbs [{:file ".thumbs/ddd/320x240.png" :resolution [320 240]} {:file ".thumbs/ddd/640x480.png" :resolution [320 240]}]
-                :checksum "ddd"
+                :thumbs [{:file ".thumbs/5aae613359c48869c625aa20693922c7518170b3/320x240.png" :resolution [320 240]} {:file ".thumbs/5aae613359c48869c625aa20693922c7518170b3/640x480.png" :resolution [640 480]}]
+                :checksum "5aae613359c48869c625aa20693922c7518170b3"
                 :timestamp "2015:03:14 11:15:32"}
                {:file "./resources/albums/ski_trip_2014/slopes/iSnowy-Trees_Winter-in-the-Park__94185-150x150.jpg"
-                :thumbs [{:file ".thumbs/ddd/320x240.png" :resolution [320 240]} {:file ".thumbs/ddd/640x480.png" :resolution [320 240]}]
-                :checksum "ddd"
-                :timestamp "2015:03:14 11:15:32"}])))
+                :thumbs [{:file ".thumbs/d7ba8d300fd4d864e51c11b25ce780b69e811fbb/320x240.png" :resolution [320 240]} {:file ".thumbs/d7ba8d300fd4d864e51c11b25ce780b69e811fbb/640x480.png" :resolution [640 480]}]
+                :checksum "d7ba8d300fd4d864e51c11b25ce780b69e811fbb"
+                :timestamp "2015:03:14 11:15:32"}] :in-any-order)))
 
 
