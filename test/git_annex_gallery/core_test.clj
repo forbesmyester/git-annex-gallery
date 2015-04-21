@@ -40,7 +40,7 @@
 
 (fact "can identify albums"
       (identify-albums (file/as-file "./resources/albums")) =>
-      (just ["./resources/albums/a/b/c/d/e" "./resources/albums/birthday" "./resources/albums/ski_trip_2014/slopes" "./resources/albums/ski_trip_2014/chalet"]))
+      (just ["./resources/albums/a/b/c/d/e" "./resources/albums/birthday" "./resources/albums/ski_trip_2014/slopes" "./resources/albums/ski_trip_2014/chalet"] :in-any-order))
 
 (fact "can list images"
       (identify-files (file/as-file "./resources/albums/ski_trip_2014/slopes")) =>
