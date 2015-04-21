@@ -72,9 +72,9 @@
 (defn get-checksum [path]
   (let [dir (-> path file/as-file .getParent file/as-file .getPath)
         filename (-> path file/as-file .getName)
-        get-checksum-config [{ :sh ["git" "annex" "lookupkey" :dir dir] :post str/trim }
-                             { :sh ["git" "ls-files" "-s" :dir dir] :post #(second(str/split % #" +")) }
-                             { :sh ["sha1sum" path] :post #(first(str/split % #" +")) }]
+        get-checksum-config [{ :sh ["git" "annex" "lookupkey" filename :dir dir] :post str/trim }
+                             { :sh ["git" "ls-files" "-s" filename :dir dir] :post #(second(str/split % #" +")) }
+                             { :sh ["sha1sum" filename :dir dir] :post #(first(str/split % #" +")) }]
         result (drop-while-return-checked
                  #(apply shell/sh (:sh %))
                  #(= 0 (:exit %))
@@ -103,7 +103,6 @@
 
 (defn keyify [aliases]
   (let [get-key (fn [aliases str]
-                  (print aliases str)
                   (if (aliases str)
                     (keyword (aliases str))
                     (keyword str)))
@@ -156,7 +155,7 @@
     (if (.exists dest-file)
       [dest-filename 0]
       (do (create-dir destination-directory)
-          (if (= 0 (:exit (shell/sh "convert" "-format" "png" "-thumbnail" width-height source-file dest-filename)))
+          (if (= 0 (:exit (shell/sh "convert" "-format" convert-to-format "-thumbnail" width-height source-file dest-filename)))
             [dest-filename 1]
             nil)))))
 
@@ -172,6 +171,12 @@
                  source-file
                  )))
       resolutions)))
+
+(defn process-album [resolutions convert-to-format destination-directory source-directory]
+  (map 
+    #(get-thumbnails resolutions convert-to-format destination-directory %)
+    (identify-files source-directory)
+    ))
 
 
 (defn -main
